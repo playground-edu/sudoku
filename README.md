@@ -21,12 +21,12 @@ A potential improvement of this algorithm could consist of finding a more effici
 ```
 
 Input.txt is a text file consisting of 9 lines of 9 integers each in the range 1 to 9, separated by space. Integer 0 is used to mark empty cells that need to be filled to complete the puzzle.
-See _Arto Inkala_ [hardest.txt](./hardest.txt) sudoku as an example.
+See _Arto Inkala_'s [hardest.txt](./hardest.txt) sudoku as an example.
 
 As shown in the example, you can enter any number of spaces to separate rows and columns, and may want to take advantage of that to represent 
 the grid as _3x3_ blocks of 3x3 cells each, which is easier to visualize.
 
-You also have the option to input negative integers to validate a Sudoku puzzle without revealing the full solution. In this case, the algorithm verifies that the negative values match those in the solution. Any discrepancies are indicated as 'X', without divulging additional information about the solution.
+You also have the option to input negative integers to validate a Sudoku puzzle without revealing the full solution. In this case, the algorithm verifies that the negative values match those in the solution. Any discrepancies are indicated as 'X', without divulging additional information about the solution. Try it with [val-hardest.txt](./val-hardest.txt) for an example.
 
 ## Build
 

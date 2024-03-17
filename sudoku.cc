@@ -139,7 +139,7 @@ class Sudoku {
                            out << std::setw(2) << 'X' ;
                         }
                     } else {
-                           out << std::setw(2) << ' ' ;
+                           out << std::setw(2) << '.' ;
                     }
                 }
                 out << std::endl ;
