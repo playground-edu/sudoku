@@ -14,26 +14,17 @@ inline uint countbits(const uint n) {
 
 class Sudoku {
     private:
-		std::vector<std::tuple<uint,uint>> undostack ;
+        std::vector<std::tuple<uint,uint>> undostack ;
         long numundo = 0 ;
         bool validation = false ;
-		std::array<uint,9> row{};
-		std::array<uint,9> col{};
-		std::array<uint,9> blk{};
-		std::array<std::array<uint,9>,9> sudoku{} ;
-		std::array<std::array<uint,9>,9> sudoku_test{} ;
+        std::array<uint,9> row{};
+        std::array<uint,9> col{};
+        std::array<uint,9> blk{};
+        std::array<std::array<uint,9>,9> sudoku{} ;
+        std::array<std::array<uint,9>,9> sudoku_test{} ;
 
         void iset(int r, int c, int v) {
-            if (r < 0 || r > 8) {
-                throw std::out_of_range("invalid entry, rows must be between 1 and 9.");
-            }
-            if (c < 0 || c > 8) {
-                throw std::out_of_range("invalid entry, columns must be between 1 and 9.");
-            }
-            if (v < 1 || v > 9) {
-                throw std::out_of_range("invalid entry, values must be between 1 and 9.");
-            }
-            const uint vv = 1<<v ;
+            const uint vv = 1<<(v-1) ;
             sudoku[r][c] = v ;
             row[r] |= vv ;
             col[c] |= vv ;
@@ -42,21 +33,12 @@ class Sudoku {
         }
 
         void tset(int r, int c, int v) {
-            if (r < 0 || r > 8) {
-                throw std::out_of_range("invalid entry, row number must be between 1 and 9.");
-            }
-            if (c < 0 || c > 8) {
-                throw std::out_of_range("invalid entry, row column number must be between 1 and 9.");
-            }
-            if (v < 1 || v > 9) {
-                throw std::out_of_range("invalid entry, values must be between 1 and 9.");
-            }
             sudoku_test[r][c] = v ;
         }
 
         void undo() {
             const auto [r,c] = undostack.back() ;
-            const auto v = ~(1<<sudoku[r][c]) ;
+            const auto v = ~(1<<(sudoku[r][c]-1)) ;
             sudoku[r][c] = 0 ;
             row[r] &= v ;
             col[c] &= v ;
@@ -67,10 +49,10 @@ class Sudoku {
 
         void clear() {
             undostack.clear();
-			row.fill(0);
-			col.fill(0);
-			blk.fill(0);
-            for(uint n = 0 ; n < 9 ; ++n) {
+            row.fill(0);
+            col.fill(0);
+            blk.fill(0);
+            for(auto n = 0 ; n < 9 ; ++n) {
                 sudoku[n].fill(0) ;
                 sudoku_test[n].fill(0) ;
             }
@@ -85,8 +67,8 @@ class Sudoku {
         void init(std::istream& ins) {
             clear();
             ins >> std::skipws ;
-            for(uint r = 1; r < 10; ++r) {
-                for(uint c = 1; c < 10; ++c) {
+            for(auto r = 1; r < 10; ++r) {
+                for(auto c = 1; c < 10; ++c) {
                     int v = 0 ;
                     ins >> v ;
                     set(r, c, v);
@@ -98,8 +80,8 @@ class Sudoku {
         }
 
         void print(std::ostream& out) const {
-            for(uint r = 0; r < 9; ++r) {
-                for( uint c = 0; c < 9; ++c) {
+            for(auto r = 0; r < 9; ++r) {
+                for( auto c = 0; c < 9; ++c) {
                     out << std::setw(2) << sudoku[r][c] ;
                 }
                 out << std::endl ;
@@ -111,15 +93,16 @@ class Sudoku {
         }
 
         void set(int r, int c, int v) {
-                if (v == 0) {
-                    return ;
-                }
-                if (v > 0) {
+                if (0 < v && v < 10) {
                     iset(r-1,c-1,v);
                     tset(r-1,c-1,v);
-                } else {
+                }
+                else if (-10 < v && v < 0) {
                     validation=true;
                     tset(r-1,c-1,-v);
+                }
+                else if (v) {
+                    throw std::out_of_range("invalid entry, values must be between 1 and 9.");
                 }
         }
 
@@ -129,8 +112,8 @@ class Sudoku {
 
         void verify(std::ostream& out) const {
             uint numbad=0 ;
-            for(uint r = 0; r < 9; ++r) {
-                for( uint c = 0; c < 9; ++c) {
+            for(auto r = 0; r < 9; ++r) {
+                for(auto c = 0; c < 9; ++c) {
                     if (sudoku_test[r][c] > 0) {
                         if (sudoku_test[r][c] == sudoku[r][c]) {
                             out << std::setw(2) << sudoku[r][c] ;
@@ -139,7 +122,7 @@ class Sudoku {
                            out << std::setw(2) << 'X' ;
                         }
                     } else {
-                           out << std::setw(2) << '.' ;
+                        out << std::setw(2) << '.' ;
                     }
                 }
                 out << std::endl ;
@@ -176,8 +159,7 @@ class Sudoku {
             if (x_opt == 0) {
                 return false ;
             }
-            v_opt >>= 1 ;
-            for(uint v = 1; v < 10; ++v) {
+            for(auto v = 1; v < 10; ++v) {
                 if ((v_opt & 1) == 0) {
                     iset(r_opt, c_opt, v);
                     if (solve()) {
@@ -201,15 +183,15 @@ std::ostream& operator<<(std::ostream& out, const Sudoku& sudoku) {
 };
 
 int main(int c, const char* v[]) {
-        Sudoku sudoku ;
-        sudoku.init(std::cin);
-        if (sudoku.solve()) {
-			std::cout << sudoku << std::endl;
-			std::cout << "Undo: " << sudoku.countUndo() << std::endl ;
-        } else {
-			std::cout << "no solution" << std::endl;
-        }
-        return 0;
+    Sudoku sudoku ;
+    sudoku.init(std::cin);
+    if (sudoku.solve()) {
+        std::cout << sudoku << std::endl;
+        std::cout << "Undo: " << sudoku.countUndo() << std::endl ;
+    } else {
+        std::cout << "no solution" << std::endl;
+    }
+    return 0;
 }
 
 
