@@ -1,4 +1,4 @@
-# sudoku
+# Sudoku Solver C++
 
 ## Description
 
